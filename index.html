@@ -14,14 +14,16 @@
     <style>
         :root {
             --primary: #ff4500;
-            --primary-glow: rgba(255, 69, 0, 0.4);
-            --bg-dark: #0a0a0a;
-            --bg-card: #161616;
+            --primary-glow: rgba(255, 69, 0, 0.3);
+            --bg-dark: #050505;
+            --bg-side: #0a0a0a;
+            --bg-card: #121212;
             --text-main: #e0e0e0;
-            --text-muted: #888;
-            --border: #333;
+            --text-muted: #666;
+            --border: #222;
             --font-mono: 'JetBrains Mono', monospace;
             --font-display: 'Space Grotesk', sans-serif;
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,245 +32,252 @@
             font-family: var(--font-display);
             background-color: var(--bg-dark);
             color: var(--text-main);
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- UI Components --- */
-        header {
-            padding: 1.5rem 2rem;
+        /* --- SIDEBAR --- */
+        aside {
+            width: 260px;
+            background: var(--bg-side);
+            border-right: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
             z-index: 100;
         }
 
-        h1 {
+        .logo {
             font-size: 1.8rem;
             font-weight: 700;
+            margin-bottom: 3rem;
             color: white;
-            text-shadow: 0 0 15px var(--primary-glow);
-            cursor: pointer;
+            text-shadow: 0 0 10px var(--primary-glow);
         }
+        .logo span { color: var(--primary); }
 
-        h1 span { color: var(--primary); }
-
-        nav {
+        .nav-group { display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+        .nav-item {
             display: flex;
-            gap: 2rem;
-            margin-left: 3rem;
-        }
-
-        .nav-link {
-            text-decoration: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
             color: var(--text-muted);
+            text-decoration: none;
             font-family: var(--font-mono);
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: var(--transition);
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 69, 0, 0.1);
+            color: var(--primary);
         }
 
-        .nav-link.active { color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+        .user-section { border-top: 1px solid var(--border); padding-top: 1rem; }
 
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            width: 100%;
+        /* --- MAIN CONTENT AREA --- */
+        main {
             flex-grow: 1;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            font-family: var(--font-display);
-        }
-
-        /* --- Search Bar --- */
-        .search-container {
-            margin-bottom: 2rem;
             position: relative;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 100px;
         }
 
-        #search-input {
+        .page {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            padding: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        .page.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        /* --- HOME PAGE HERO --- */
+        .hero { margin-bottom: 4rem; }
+        .hero h2 { font-size: 4rem; font-weight: 800; line-height: 1; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 600px; }
+
+        /* --- HORIZONTAL SCROLLING (MARQUEE) --- */
+        .marquee-container {
             width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
+            overflow: hidden;
+            position: relative;
+            margin: 2rem 0;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .marquee-inner {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+            animation: scroll 30s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-card {
+            width: 300px;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            color: white;
-            font-family: var(--font-mono);
-            outline: none;
-            transition: 0.3s;
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            cursor: pointer;
         }
 
-        #search-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        /* --- TRACKS LIST --- */
+        .search-bar {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-mono);
+            margin-bottom: 2rem;
+            outline: none;
+        }
+        .search-bar:focus { border-color: var(--primary); }
 
-        .search-icon { position: absolute; left: 1rem; top: 1.1rem; color: var(--text-muted); }
-
-        /* --- Grid & Cards --- */
-        .grid {
+        .track-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
+            padding: 1.5rem;
             border-radius: 12px;
-            padding: 1.2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
+        .card:hover { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px -10px var(--primary-glow);
-        }
-
-        .thumbnail {
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border);
-        }
-
-        .card h3 { font-size: 1rem; margin-bottom: 0.4rem; color: white; }
-        .card p { font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); }
-
-        /* --- Player Bar --- */
+        /* --- PLAYER BAR --- */
         .player-bar {
-            background: #000;
+            position: fixed;
+            bottom: 0; left: 260px; right: 0;
+            background: rgba(5,5,5,0.95);
+            backdrop-filter: blur(15px);
             border-top: 1px solid var(--border);
-            padding: 1rem 2rem;
+            padding: 1rem 3rem;
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
             align-items: center;
-            position: sticky;
-            bottom: 0;
+            z-index: 1000;
         }
-
         audio { filter: invert(1) hue-rotate(180deg) brightness(1.5); width: 100%; }
 
-        /* --- Auth Modal --- */
+        .hidden { display: none !important; }
+
+        /* --- MODAL --- */
         #auth-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            background: rgba(0,0,0,0.95);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
         }
-
         .modal-content {
-            background: var(--bg-card);
-            padding: 3rem;
-            border: 1px solid var(--primary);
-            border-radius: 12px;
-            width: 400px;
-            text-align: center;
-            box-shadow: 0 0 40px var(--primary-glow);
+            background: var(--bg-card); padding: 3rem; border-radius: 15px; border: 1px solid var(--primary);
+            width: 380px; text-align: center; box-shadow: 0 0 50px var(--primary-glow);
         }
-
-        input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            background: #000;
-            border: 1px solid var(--border);
-            color: white;
-            font-family: var(--font-mono);
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-family: var(--font-mono);
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 1rem;
-            cursor: pointer;
-        }
-
-        .hidden { display: none !important; }
+        .modal-content input { width: 100%; padding: 1rem; margin: 0.5rem 0; background: #000; border: 1px solid var(--border); color: white; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div style="display: flex; align-items: center;">
-            <h1 onclick="showPage('home')">Audio<span>tube</span></h1>
-            <nav>
-                <a class="nav-link active" id="nav-home" onclick="showPage('home')">Home</a>
-                <a class="nav-link" id="nav-tracks" onclick="showPage('tracks')">Tracks</a>
-            </nav>
-        </div>
+    <aside>
+        <div class="logo">Audio<span>tube</span></div>
         
-        <div class="nav-right" style="display: flex; gap: 1rem; align-items: center;">
-            <button id="sign-in-btn" class="nav-link" style="background:none; border:1px solid var(--border); padding: 5px 15px; border-radius: 4px;" onclick="toggleModal(true)">Sign In</button>
-            <label for="upload-input" id="upload-label" class="nav-link hidden" style="color: var(--primary); cursor:pointer;">[ UPLOAD ]</label>
+        <div class="nav-group">
+            <div class="nav-item active" id="nav-home" onclick="navigateTo('home')">
+                <i data-lucide="home"></i> Home
+            </div>
+            <div class="nav-item" id="nav-tracks" onclick="navigateTo('tracks')">
+                <i data-lucide="music"></i> Tracks
+            </div>
+            <label for="upload-input" id="upload-label" class="nav-item hidden" style="color: var(--primary);">
+                <i data-lucide="plus-circle"></i> Upload
+            </label>
             <input type="file" id="upload-input" class="hidden" accept="audio/*">
-            <button id="logout-btn" class="hidden" onclick="signOut()" style="background:none; border:none; color:var(--text-muted); cursor:pointer"><i data-lucide="log-out"></i></button>
         </div>
-    </header>
+
+        <div class="user-section">
+            <div id="sign-in-btn" class="nav-item" onclick="toggleModal(true)">
+                <i data-lucide="log-in"></i> Sign In
+            </div>
+            <div id="logout-btn" class="nav-item hidden" onclick="signOut()">
+                <i data-lucide="log-out"></i> Logout
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div id="page-home" class="page active">
+            <div class="hero">
+                <h2>The Archive of<span>Sound.</span></h2>
+                <p>A decentralized audio platform for creators who prioritize frequency over followers. Pure sound, zero noise.</p>
+            </div>
+
+            <h3 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--primary); margin-bottom: 1rem;">// RECOMMENDED_FEED</h3>
+            <div class="marquee-container">
+                <div class="marquee-inner" id="marquee">
+                    </div>
+            </div>
+
+            <div style="margin-top: 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Global Broadcast</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Join a community of 1,000+ artists sharing raw audio files across the globe instantly via Supabase Edge storage.</p>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 1rem;">Developer Mindset</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Built with the Bytecode aesthetic. Low latency, high fidelity, and absolutely no tracking scripts.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-tracks" class="page">
+            <h2 style="margin-bottom: 2rem;">All Tracks</h2>
+            <input type="text" id="search-bar" class="search-bar" placeholder="SEARCH_BY_TITLE..." oninput="filterTracks()">
+            <div class="track-grid" id="all-grid"></div>
+        </div>
+    </main>
+
+    <div class="player-bar">
+        <div>
+            <p id="p-title" style="font-weight: bold; font-size: 0.9rem;">No track selected</p>
+            <p id="p-author" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);"></p>
+        </div>
+        <audio id="player" controls></audio>
+        <div style="text-align: right; color: var(--primary); font-family: var(--font-mono); font-size: 0.7rem;">SYSTEM_ACTIVE</div>
+    </div>
 
     <div id="auth-modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 1rem; font-family: var(--font-mono);">AUTH_REQUIRED</h2>
-            <input type="email" id="auth-email" placeholder="USER_EMAIL">
-            <input type="password" id="auth-password" placeholder="USER_PASS">
-            <button class="btn-primary" onclick="executeAuth()">Initialize Session</button>
-            <p onclick="toggleModal(false)" style="margin-top: 1rem; color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">ABORT</p>
+            <h2 style="font-family: var(--font-mono); margin-bottom: 1rem;">SIGN_IN</h2>
+            <input type="email" id="email" placeholder="EMAIL">
+            <input type="password" id="pass" placeholder="PASSWORD">
+            <button onclick="executeAuth()" style="width: 100%; padding: 1rem; background: var(--primary); border: none; color: white; cursor: pointer; font-family: var(--font-mono); margin-top: 1rem;">INIT_SESSION</button>
+            <p onclick="toggleModal(false)" style="margin-top: 1rem; color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">CANCEL</p>
         </div>
-    </div>
-
-    <div class="container" id="page-home">
-        <h2 class="section-title">Recommended<span>_</span></h2>
-        <div class="grid" id="recommended-grid">
-            </div>
-    </div>
-
-    <div class="container hidden" id="page-tracks">
-        <h2 class="section-title">All_Tracks<span>_</span></h2>
-        <div class="search-container">
-            <i data-lucide="search" class="search-icon"></i>
-            <input type="text" id="search-input" placeholder="SEARCH_DATABASE..." oninput="filterTracks()">
-        </div>
-        <div class="grid" id="all-tracks-grid">
-            </div>
-    </div>
-
-    <div class="player-bar">
-        <div id="track-info">
-            <p id="now-playing-title" style="color: white; font-weight: bold; font-size: 0.9rem;">No track selected</p>
-            <p id="now-playing-author" style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--font-mono);"></p>
-        </div>
-        <audio id="main-audio" controls></audio>
-        <div style="text-align: right; font-family: var(--font-mono); font-size: 0.7rem; color: var(--primary);">STATUS: READY</div>
     </div>
 
     <script>
@@ -276,17 +285,61 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqb2h2YWdxdGZjeGJwd3BsZHJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyOTI0NjcsImV4cCI6MjA4Nzg2ODQ2N30.nJxUOL7ay9G4i9RpbeXbO1x4-wOmXYc8eWrwRuLcSXg'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        let allTracksData = [];
+        let allTracks = [];
 
-        function showPage(page) {
-            document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
-            document.getElementById('page-tracks').classList.toggle('hidden', page !== 'tracks');
-            document.getElementById('nav-home').classList.toggle('active', page === 'home');
-            document.getElementById('nav-tracks').classList.toggle('active', page === 'tracks');
-            if(page === 'tracks') filterTracks();
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            document.getElementById(`nav-${pageId}`).classList.add('active');
         }
 
-        function toggleModal(show) { document.getElementById('auth-modal').style.display = show ? 'flex' : 'none'; }
+        async function fetchAll() {
+            const { data } = await _supabase.from('audiotube_tracks').select('*').order('created_at', {ascending: false});
+            allTracks = data || [];
+            
+            // Marquee (Duplicates for infinite effect)
+            const marquee = document.getElementById('marquee');
+            marquee.innerHTML = '';
+            const list = [...allTracks, ...allTracks]; // Duplicate list
+            list.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'marquee-card';
+                div.innerHTML = `<i data-lucide="play-circle" color="#ff4500"></i> <div><p style="font-size:0.85rem; font-weight:bold">${t.title}</p><p style="font-size:0.7rem; color:#666">${t.author.split('@')[0]}</p></div>`;
+                div.onclick = () => play(t);
+                marquee.appendChild(div);
+            });
+
+            renderGrid(allTracks);
+            lucide.createIcons();
+        }
+
+        function renderGrid(data) {
+            const grid = document.getElementById('all-grid');
+            grid.innerHTML = '';
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `<h3 style="margin-bottom:5px">${t.title}</h3><p style="font-family:var(--font-mono)">@${t.author.split('@')[0]}</p>`;
+                div.onclick = () => play(t);
+                grid.appendChild(div);
+            });
+        }
+
+        function filterTracks() {
+            const q = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = allTracks.filter(t => t.title.toLowerCase().includes(q));
+            renderGrid(filtered);
+        }
+
+        function play(t) {
+            const p = document.getElementById('player');
+            p.src = t.url; p.play();
+            document.getElementById('p-title').innerText = t.title;
+            document.getElementById('p-author').innerText = `BY: ${t.author.split('@')[0]}`;
+        }
+
+        function toggleModal(s) { document.getElementById('auth-modal').style.display = s ? 'flex' : 'none'; }
 
         async function updateUI() {
             const { data: { user } } = await _supabase.auth.getUser();
@@ -295,72 +348,26 @@
             document.getElementById('sign-in-btn').classList.toggle('hidden', !!user);
         }
 
-        async function fetchTracks() {
-            const { data: tracks } = await _supabase.from('audiotube_tracks').select('*').order('created_at', {ascending: false});
-            allTracksData = tracks || [];
-            
-            // Render Recommended (Latest 4)
-            renderGrid(allTracksData.slice(0, 4), 'recommended-grid');
-            // Render All
-            renderGrid(allTracksData, 'all-tracks-grid');
-            lucide.createIcons();
-        }
-
-        function renderGrid(data, elementId) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = data.length ? '' : '<p style="color:var(--text-muted)">NO_DATA_FOUND</p>';
-            data.forEach(t => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="thumbnail"><i data-lucide="play" color="#ff4500"></i></div>
-                    <h3>${t.title}</h3>
-                    <p>> ${t.author.split('@')[0]}</p>
-                `;
-                card.onclick = () => playTrack(t);
-                container.appendChild(card);
-            });
-        }
-
-        function filterTracks() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allTracksData.filter(t => t.title.toLowerCase().includes(query));
-            renderGrid(filtered, 'all-tracks-grid');
-            lucide.createIcons();
-        }
-
-        function playTrack(t) {
-            const player = document.getElementById('main-audio');
-            player.src = t.url;
-            player.play();
-            document.getElementById('now-playing-title').innerText = t.title;
-            document.getElementById('now-playing-author').innerText = `AUTHOR: ${t.author.split('@')[0]}`;
-        }
-
-        // Auth Logic
         async function executeAuth() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) await _supabase.auth.signUp({ email, password });
-            toggleModal(false);
-            updateUI();
+            const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
+            if (error) await _supabase.auth.signUp({ email: e, password: p });
+            toggleModal(false); updateUI();
         }
 
         async function signOut() { await _supabase.auth.signOut(); updateUI(); }
 
-        // Upload Logic
         document.getElementById('upload-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
+            const f = e.target.files[0]; if(!f) return;
             const { data: { user } } = await _supabase.auth.getUser();
-            const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-            await _supabase.storage.from('songs').upload(fileName, file);
-            const { data: { publicUrl } } = _supabase.storage.from('songs').getPublicUrl(fileName);
-            await _supabase.from('audiotube_tracks').insert([{ title: file.name.split('.')[0], url: publicUrl, author: user.email }]);
-            fetchTracks();
+            const name = `${Date.now()}-${f.name.replace(/\s/g, '-')}`;
+            await _supabase.storage.from('songs').upload(name, f);
+            const { data: { publicUrl } } = _supabase.storage.from('songs').getPublicUrl(name);
+            await _supabase.from('audiotube_tracks').insert([{ title: f.name.replace(/\.[^/.]+$/, ""), url: publicUrl, author: user.email }]);
+            fetchAll();
         });
 
-        window.onload = () => { updateUI(); fetchTracks(); lucide.createIcons(); };
+        window.onload = () => { updateUI(); fetchAll(); lucide.createIcons(); };
     </script>
 </body>
 </html>
