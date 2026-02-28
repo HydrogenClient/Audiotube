@@ -13,6 +13,7 @@
             --surface: #212121;
             --text: #ffffff;
             --text-dim: #aaaaaa;
+            --border: #3f3f3f;
         }
 
         body {
@@ -35,9 +36,7 @@
             align-items: center;
             background: var(--bg-dark);
             border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            z-index: 10;
         }
 
         .logo-container { display: flex; align-items: center; gap: 8px; cursor: pointer; }
@@ -57,11 +56,64 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: 0.2s;
         }
 
-        .upload-btn:hover { background: #cc0000; }
-        .auth-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 500; }
+        .auth-btn { 
+            background: transparent; 
+            color: #3ea6ff; 
+            border: 1px solid #3ea6ff; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 5px;
+            font-weight: 500;
+        }
+
+        /* --- LOGIN MODAL --- */
+        #auth-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #282828;
+            padding: 40px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h2 { margin-top: 0; font-size: 1.5rem; }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #121212;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .primary-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--yt-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
         /* --- FEED --- */
         #feed {
@@ -73,7 +125,7 @@
             flex-grow: 1;
         }
 
-        .audio-card { cursor: pointer; transition: 0.2s; position: relative; }
+        .audio-card { cursor: pointer; transition: 0.2s; }
         .audio-card:hover { transform: scale(1.02); }
 
         .thumbnail {
@@ -85,14 +137,11 @@
             justify-content: center;
             margin-bottom: 12px;
             border: 1px solid #333;
-            font-size: 40px;
-            color: #444;
         }
 
         .card-info { display: flex; gap: 10px; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #FF0000 0%, #FF8A00 100%); flex-shrink: 0; }
-        .meta { overflow: hidden; }
-        .meta h3 { margin: 0; font-size: 0.9rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #444; flex-shrink: 0; }
+        .meta h3 { margin: 0; font-size: 0.9rem; }
         .meta p { color: var(--text-dim); font-size: 0.8rem; margin: 4px 0; }
 
         /* --- PLAYER BAR --- */
@@ -103,72 +152,76 @@
             display: grid;
             grid-template-columns: 250px 1fr 100px;
             align-items: center;
-            gap: 20px;
         }
 
-        #track-display { font-size: 0.85rem; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        audio { width: 100%; height: 32px; filter: invert(1); }
-
+        audio { width: 100%; filter: invert(1); }
         .hidden { display: none !important; }
-        #upload-input { display: none; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo-container" onclick="location.reload()">
-            <i data-lucide="radio" class="logo-icon" size="28"></i>
+            <i data-lucide="youtube" class="logo-icon" size="28"></i>
             <span class="logo-text">Audiotube</span>
         </div>
         
         <div class="nav-right">
-            <span id="user-name" style="font-size: 0.8rem; color: var(--text-dim);"></span>
-            <button id="auth-btn" class="auth-btn" onclick="handleAuth()">Sign In</button>
+            <button id="sign-in-nav" class="auth-btn" onclick="toggleModal(true)">
+                <i data-lucide="user-circle" size="20"></i> Sign In
+            </button>
             <label for="upload-input" id="upload-label" class="upload-btn hidden">
-                <i data-lucide="upload" size="18"></i> UPLOAD
+                <i data-lucide="plus" size="18"></i> UPLOAD
             </label>
-            <input type="file" id="upload-input" accept="audio/*">
+            <input type="file" id="upload-input" class="hidden" accept="audio/*">
             <button id="logout-btn" class="hidden" onclick="signOut()" style="background:none; border:none; color:var(--text-dim); cursor:pointer"><i data-lucide="log-out" size="18"></i></button>
         </div>
     </header>
 
-    <main id="feed">
-        <div id="loading-state" style="grid-column: 1/-1; text-align: center; margin-top: 50px; color: var(--text-dim);">
-            Connecting to Audiotube...
+    <div id="auth-modal">
+        <div class="modal-content">
+            <i data-lucide="play-circle" color="#FF0000" size="48"></i>
+            <h2>Sign In</h2>
+            <p style="color: #aaa; font-size: 0.8rem;">Use your email to continue to Audiotube</p>
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-password" placeholder="Password">
+            <button class="primary-btn" onclick="executeAuth()">Continue</button>
+            <button style="background:none; border:none; color:#3ea6ff; cursor:pointer; margin-top:15px;" onclick="toggleModal(false)">Cancel</button>
         </div>
-    </main>
+    </div>
+
+    <main id="feed"></main>
 
     <div class="player-bar">
-        <div id="track-display">No track selected</div>
+        <div id="track-display" style="font-size: 0.8rem;">No track selected</div>
         <audio id="main-audio" controls></audio>
-        <div style="text-align: right; font-size: 10px; color: #444;">LIVE</div>
+        <div style="text-align: right; font-size: 10px; color: #444;">V1.1</div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION ---
         const SB_URL = 'https://kjohvagqtfcxbpwpldrs.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqb2h2YWdxdGZjeGJwd3BsZHJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyOTI0NjcsImV4cCI6MjA4Nzg2ODQ2N30.nJxUOL7ay9G4i9RpbeXbO1x4-wOmXYc8eWrwRuLcSXg'; 
-        
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+        const modal = document.getElementById('auth-modal');
         const feed = document.getElementById('feed');
         const player = document.getElementById('main-audio');
-        const uploadInput = document.getElementById('upload-input');
 
-        // --- 2. AUTHENTICATION ---
-        async function handleAuth() {
-            const email = prompt("Email:");
-            const password = prompt("Password (min 6 chars):");
-            if (!email || !password) return;
+        function toggleModal(show) {
+            modal.style.display = show ? 'flex' : 'none';
+        }
 
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        async function executeAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
             if (error) {
-                // Try Sign Up if Login fails
-                const { error: signUpError } = await _supabase.auth.signUp({ email, password });
-                if (signUpError) alert("Auth Error: " + signUpError.message);
-                else alert("Account created! Verify your email if required by your settings.");
+                const { error: signUpErr } = await _supabase.auth.signUp({ email, password });
+                if (signUpErr) alert(signUpErr.message);
+                else alert("Check email for confirmation!");
             }
+            toggleModal(false);
             updateUI();
         }
 
@@ -179,107 +232,39 @@
 
         async function updateUI() {
             const { data: { user } } = await _supabase.auth.getUser();
-            const label = document.getElementById('upload-label');
-            const authBtn = document.getElementById('auth-btn');
-            const logoutBtn = document.getElementById('logout-btn');
-            const userName = document.getElementById('user-name');
-
-            if (user) {
-                label.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-                authBtn.classList.add('hidden');
-                userName.innerText = user.email.split('@')[0];
-            } else {
-                label.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-                authBtn.classList.remove('hidden');
-                userName.innerText = "";
-            }
+            document.getElementById('upload-label').classList.toggle('hidden', !user);
+            document.getElementById('logout-btn').classList.toggle('hidden', !user);
+            document.getElementById('sign-in-nav').classList.toggle('hidden', !!user);
         }
 
-        // --- 3. DATA LOAD ---
         async function fetchTracks() {
-            const { data: tracks, error } = await _supabase
-                .from('audiotube_tracks')
-                .select('*')
-                .order('created_at', { ascending: false });
-
+            const { data: tracks } = await _supabase.from('audiotube_tracks').select('*').order('created_at', {ascending: false});
             feed.innerHTML = '';
-            if (error) {
-                feed.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red">Error: ${error.message}</div>`;
-                return;
-            }
-
-            if (!tracks || tracks.length === 0) {
-                feed.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#555; margin-top:50px;">No tracks found. Be the first to upload!</div>';
-            } else {
-                tracks.forEach(track => {
-                    const card = document.createElement('div');
-                    card.className = 'audio-card';
-                    card.innerHTML = `
-                        <div class="thumbnail"><i data-lucide="music" size="48"></i></div>
-                        <div class="card-info">
-                            <div class="avatar"></div>
-                            <div class="meta">
-                                <h3>${track.title}</h3>
-                                <p>${track.author.split('@')[0]} • Global</p>
-                            </div>
-                        </div>
-                    `;
-                    card.onclick = () => {
-                        player.src = track.url;
-                        player.play();
-                        document.getElementById('track-display').innerText = track.title;
-                    };
-                    feed.appendChild(card);
-                });
-                lucide.createIcons();
-            }
+            tracks?.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'audio-card';
+                card.innerHTML = `
+                    <div class="thumbnail"><i data-lucide="music" size="48"></i></div>
+                    <div class="card-info"><div class="avatar"></div><div class="meta"><h3>${t.title}</h3><p>${t.author.split('@')[0]}</p></div></div>
+                `;
+                card.onclick = () => { player.src = t.url; player.play(); document.getElementById('track-display').innerText = t.title; };
+                feed.appendChild(card);
+            });
+            lucide.createIcons();
         }
 
-        // --- 4. UPLOAD LOGIC ---
-        uploadInput.addEventListener('change', async (e) => {
+        // Upload Logic
+        document.getElementById('upload-input').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-
             const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) return alert("Please sign in to upload.");
-
-            // Create a safe filename
-            const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-
-            // A. Upload to Storage Bucket 'songs'
-            const { data: upData, error: upErr } = await _supabase.storage
-                .from('songs')
-                .upload(fileName, file);
-
-            if (upErr) return alert("Storage Error: " + upErr.message);
-
-            // B. Get the Public URL
+            const fileName = `${Date.now()}-${file.name}`;
+            await _supabase.storage.from('songs').upload(fileName, file);
             const { data: { publicUrl } } = _supabase.storage.from('songs').getPublicUrl(fileName);
-
-            // C. Insert metadata into 'audiotube_tracks' table
-            const { error: dbErr } = await _supabase.from('audiotube_tracks').insert([
-                { 
-                    title: file.name.replace(/\.[^/.]+$/, ""), 
-                    url: publicUrl, 
-                    author: user.email 
-                }
-            ]);
-
-            if (dbErr) alert("Database Error: " + dbErr.message);
-            else {
-                alert("Upload successful!");
-                fetchTracks(); // Reload feed
-            }
+            await _supabase.from('audiotube_tracks').insert([{ title: file.name, url: publicUrl, author: user.email }]);
+            fetchTracks();
         });
 
-        // Initialize App
-        window.onload = () => {
-            updateUI();
-            fetchTracks();
-            lucide.createIcons();
-        };
+        window.onload = () => { updateUI(); fetchTracks(); lucide.createIcons(); };
     </script>
 </body>
 </html>
