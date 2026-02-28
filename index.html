@@ -26,6 +26,7 @@
             overflow: hidden;
         }
 
+        /* --- HEADER --- */
         header {
             padding: 0 20px;
             height: 56px;
@@ -62,6 +63,7 @@
         .upload-btn:hover { background: #cc0000; }
         .auth-btn { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 500; }
 
+        /* --- FEED --- */
         #feed {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -83,6 +85,8 @@
             justify-content: center;
             margin-bottom: 12px;
             border: 1px solid #333;
+            font-size: 40px;
+            color: #444;
         }
 
         .card-info { display: flex; gap: 10px; }
@@ -91,6 +95,7 @@
         .meta h3 { margin: 0; font-size: 0.9rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .meta p { color: var(--text-dim); font-size: 0.8rem; margin: 4px 0; }
 
+        /* --- PLAYER BAR --- */
         .player-bar {
             background: #0f0f0f;
             border-top: 1px solid #333;
@@ -103,16 +108,10 @@
 
         #track-display { font-size: 0.85rem; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        audio { width: 100%; height: 30px; filter: invert(1); }
+        audio { width: 100%; height: 32px; filter: invert(1); }
 
         .hidden { display: none !important; }
         #upload-input { display: none; }
-
-        .delete-icon {
-            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6);
-            border-radius: 50%; padding: 5px; color: white; opacity: 0; transition: 0.2s;
-        }
-        .audio-card:hover .delete-icon { opacity: 1; }
     </style>
 </head>
 <body>
@@ -135,22 +134,21 @@
     </header>
 
     <main id="feed">
-        <div style="grid-column: 1/-1; text-align: center; margin-top: 50px; color: var(--text-dim);">
-            Loading Audiotube Feed...
+        <div id="loading-state" style="grid-column: 1/-1; text-align: center; margin-top: 50px; color: var(--text-dim);">
+            Connecting to Audiotube...
         </div>
     </main>
 
     <div class="player-bar">
         <div id="track-display">No track selected</div>
         <audio id="main-audio" controls></audio>
-        <div style="text-align: right; font-size: 10px; color: #444;">V1.0</div>
+        <div style="text-align: right; font-size: 10px; color: #444;">LIVE</div>
     </div>
 
     <script>
-        // --- CONFIG ---
+        // --- 1. CONFIGURATION ---
         const SB_URL = 'https://kjohvagqtfcxbpwpldrs.supabase.co';
-        // Note: It is safe to keep the 'Anon' key in public code as long as RLS is on.
-        const SB_KEY = 'PASTE_YOUR_ANON_KEY_HERE'; 
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqb2h2YWdxdGZjeGJwd3BsZHJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyOTI0NjcsImV4cCI6MjA4Nzg2ODQ2N30.nJxUOL7ay9G4i9RpbeXbO1x4-wOmXYc8eWrwRuLcSXg'; 
         
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
@@ -158,7 +156,7 @@
         const player = document.getElementById('main-audio');
         const uploadInput = document.getElementById('upload-input');
 
-        // --- AUTH ---
+        // --- 2. AUTHENTICATION ---
         async function handleAuth() {
             const email = prompt("Email:");
             const password = prompt("Password (min 6 chars):");
@@ -166,9 +164,10 @@
 
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
             if (error) {
+                // Try Sign Up if Login fails
                 const { error: signUpError } = await _supabase.auth.signUp({ email, password });
-                if (signUpError) alert(signUpError.message);
-                else alert("Check your email for verification!");
+                if (signUpError) alert("Auth Error: " + signUpError.message);
+                else alert("Account created! Verify your email if required by your settings.");
             }
             updateUI();
         }
@@ -198,7 +197,7 @@
             }
         }
 
-        // --- DATA ---
+        // --- 3. DATA LOAD ---
         async function fetchTracks() {
             const { data: tracks, error } = await _supabase
                 .from('audiotube_tracks')
@@ -206,14 +205,19 @@
                 .order('created_at', { ascending: false });
 
             feed.innerHTML = '';
+            if (error) {
+                feed.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red">Error: ${error.message}</div>`;
+                return;
+            }
+
             if (!tracks || tracks.length === 0) {
-                feed.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#555">Empty Feed</div>';
+                feed.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#555; margin-top:50px;">No tracks found. Be the first to upload!</div>';
             } else {
                 tracks.forEach(track => {
                     const card = document.createElement('div');
                     card.className = 'audio-card';
                     card.innerHTML = `
-                        <div class="thumbnail"><i data-lucide="play" color="white" size="32"></i></div>
+                        <div class="thumbnail"><i data-lucide="music" size="48"></i></div>
                         <div class="card-info">
                             <div class="avatar"></div>
                             <div class="meta">
@@ -233,35 +237,44 @@
             }
         }
 
-        // --- UPLOAD ---
+        // --- 4. UPLOAD LOGIC ---
         uploadInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) return alert("Sign in to upload");
+            if (!user) return alert("Please sign in to upload.");
 
+            // Create a safe filename
             const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
 
-            // 1. Upload to Storage
+            // A. Upload to Storage Bucket 'songs'
             const { data: upData, error: upErr } = await _supabase.storage
                 .from('songs')
                 .upload(fileName, file);
 
-            if (upErr) return alert(upErr.message);
+            if (upErr) return alert("Storage Error: " + upErr.message);
 
-            // 2. Get URL
+            // B. Get the Public URL
             const { data: { publicUrl } } = _supabase.storage.from('songs').getPublicUrl(fileName);
 
-            // 3. Save to Table
+            // C. Insert metadata into 'audiotube_tracks' table
             const { error: dbErr } = await _supabase.from('audiotube_tracks').insert([
-                { title: file.name.replace(/\.[^/.]+$/, ""), url: publicUrl, author: user.email }
+                { 
+                    title: file.name.replace(/\.[^/.]+$/, ""), 
+                    url: publicUrl, 
+                    author: user.email 
+                }
             ]);
 
-            if (dbErr) alert(dbErr.message);
-            else fetchTracks();
+            if (dbErr) alert("Database Error: " + dbErr.message);
+            else {
+                alert("Upload successful!");
+                fetchTracks(); // Reload feed
+            }
         });
 
+        // Initialize App
         window.onload = () => {
             updateUI();
             fetchTracks();
