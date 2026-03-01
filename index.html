@@ -35,10 +35,6 @@
             height: 100vh;
             display: flex;
             overflow: hidden;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 50px 50px;
         }
 
         /* --- SIDEBAR --- */
@@ -52,14 +48,7 @@
             z-index: 100;
         }
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 3rem;
-            color: white;
-            text-shadow: 0 0 10px var(--primary-glow);
-            cursor: pointer;
-        }
+        .logo { font-size: 1.8rem; font-weight: 700; margin-bottom: 3rem; color: white; cursor: pointer; }
         .logo span { color: var(--primary); }
 
         .nav-group { display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
@@ -75,173 +64,75 @@
             font-size: 0.85rem;
             cursor: pointer;
             transition: var(--transition);
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255, 69, 0, 0.1);
-            color: var(--primary);
-        }
+        .nav-item:hover, .nav-item.active { background: rgba(255, 69, 0, 0.1); color: var(--primary); }
 
-        .user-section { border-top: 1px solid var(--border); padding-top: 1rem; }
-
-        /* --- MAIN CONTENT AREA --- */
-        main {
-            flex-grow: 1;
-            position: relative;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
-
+        /* --- MAIN CONTENT --- */
+        main { flex-grow: 1; position: relative; overflow-y: auto; }
         .page {
-            position: absolute;
-            top: 0; left: 0; width: 100%;
-            padding: 4rem;
-            opacity: 0;
-            transform: translateY(30px);
-            pointer-events: none;
-            transition: var(--transition);
+            position: absolute; top: 0; left: 0; width: 100%; padding: 4rem;
+            opacity: 0; transform: translateY(20px); pointer-events: none; transition: var(--transition);
         }
-        .page.active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: all;
-        }
+        .page.active { opacity: 1; transform: translateY(0); pointer-events: all; }
 
-        /* --- HOME PAGE HERO --- */
-        .hero { margin-bottom: 4rem; }
-        .hero h2 { font-size: 4.5rem; font-weight: 800; line-height: 0.9; margin-bottom: 1.5rem; letter-spacing: -2px; }
-        .hero h2 span { color: var(--primary); text-shadow: 0 0 20px var(--primary-glow); }
-        .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 550px; line-height: 1.6; }
-
-        /* --- MARQUEE --- */
+        /* --- TRIPLE MARQUEE --- */
         .marquee-container {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-            margin: 3rem 0;
+            width: 100%; overflow: hidden; position: relative; margin: 1rem 0;
             mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
         }
 
         .marquee-inner {
-            display: flex;
-            gap: 20px;
-            width: max-content;
-            /* Faster animation: 20s instead of 40s */
-            animation: scroll 20s linear infinite;
+            display: flex; gap: 20px; width: max-content; 
+            animation-duration: 40s; /* Slower speed */
+            animation-timing-function: linear; animation-iteration-count: infinite;
         }
 
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
+        /* Stop on hover */
+        .marquee-container:hover .marquee-inner { animation-play-state: paused !important; }
+
+        .scroll-rtl { animation-name: scrollRTL; }
+        .scroll-ltr { animation-name: scrollLTR; }
+
+        @keyframes scrollRTL { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes scrollLTR { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
 
         .marquee-card {
-            width: 320px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 1.2rem;
-            border-radius: 12px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.3s;
+            width: 300px; background: var(--bg-card); border: 1px solid var(--border);
+            padding: 1.2rem; border-radius: 12px; display: flex; gap: 15px; align-items: center; cursor: pointer;
         }
-        .marquee-card:hover { border-color: var(--primary); background: #1a1a1a; box-shadow: 0 0 15px var(--primary-glow); }
 
-        /* --- TRACKS PAGE --- */
+        /* --- TRACK GRID --- */
         .search-bar {
-            width: 100%;
-            padding: 1.2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            font-family: var(--font-mono);
-            margin-bottom: 3rem;
-            outline: none;
-            font-size: 1rem;
-            transition: 0.3s;
+            width: 100%; padding: 1.2rem; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; color: white; font-family: var(--font-mono); margin-bottom: 2rem; outline: none;
         }
-        .search-bar:focus { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        .track-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; cursor: pointer; }
 
-        .track-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 2rem;
-            border-radius: 16px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .card:hover { 
-            border-color: var(--primary); 
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px -10px var(--primary-glow); 
-        }
-
-        /* --- HIDDEN PLAYER BAR --- */
-        .player-bar {
-            position: fixed;
-            bottom: -120px;
-            left: 260px;
-            right: 0;
-            background: rgba(5, 5, 5, 0.98);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--primary);
-            box-shadow: 0 -10px 40px rgba(255, 69, 0, 0.2);
-            padding: 1.2rem 3rem;
-            display: grid;
-            grid-template-columns: 1.2fr 2fr 1fr;
-            align-items: center;
-            z-index: 1000;
-            transition: bottom 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .player-bar.visible { bottom: 0; }
-
-        audio { filter: invert(1) hue-rotate(180deg) brightness(1.5); width: 100%; }
-
-        .close-player {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            transition: 0.3s;
-        }
-        .close-player:hover { color: var(--primary); }
-
-        /* --- AUTH MODAL --- */
+        /* --- AUTH MODAL (TRANSITIONS) --- */
         #auth-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.96);
-            display: none; justify-content: center; align-items: center; z-index: 2000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
+            opacity: 0; pointer-events: none; transition: var(--transition);
         }
+        #auth-modal.visible { opacity: 1; pointer-events: all; }
         .modal-content {
-            background: var(--bg-card); padding: 4rem; border-radius: 20px; border: 1px solid var(--primary);
-            width: 420px; text-align: center; box-shadow: 0 0 60px var(--primary-glow);
+            background: var(--bg-card); padding: 3rem; border-radius: 20px; border: 1px solid var(--primary);
+            width: 400px; text-align: center; transform: scale(0.9); transition: var(--transition);
         }
-        .modal-content input { 
-            width: 100%; padding: 1.2rem; margin: 0.8rem 0; background: #000; 
-            border: 1px solid var(--border); color: white; font-family: var(--font-mono);
+        #auth-modal.visible .modal-content { transform: scale(1); }
+
+        /* --- PLAYER BAR --- */
+        .player-bar {
+            position: fixed; bottom: -120px; left: 260px; right: 0;
+            background: rgba(5,5,5,0.95); backdrop-filter: blur(15px);
+            border-top: 1px solid var(--primary); padding: 1.2rem 3rem;
+            display: grid; grid-template-columns: 1.2fr 2fr 1fr; align-items: center;
+            z-index: 1000; transition: bottom 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .btn-init {
-            width: 100%; padding: 1.2rem; background: var(--primary); border: none; 
-            color: white; cursor: pointer; font-family: var(--font-mono); font-weight: bold;
-            margin-top: 1.5rem; transition: 0.3s;
-        }
-        .btn-init:hover { background: #ff5e1a; box-shadow: 0 0 20px var(--primary-glow); }
+        .player-bar.visible { bottom: 0; }
+        audio { filter: invert(1) hue-rotate(180deg) brightness(1.5); width: 100%; }
 
         .hidden { display: none !important; }
     </style>
@@ -250,71 +141,46 @@
 
     <aside>
         <div class="logo" onclick="navigateTo('home')">Audio<span>tube</span></div>
-        
         <div class="nav-group">
-            <div class="nav-item active" id="nav-home" onclick="navigateTo('home')">
-                <i data-lucide="layout"></i> Home
-            </div>
-            <div class="nav-item" id="nav-tracks" onclick="navigateTo('tracks')">
-                <i data-lucide="layers"></i> Tracks
-            </div>
-            <label for="upload-input" id="upload-label" class="nav-item hidden" style="color: var(--primary);">
-                <i data-lucide="upload-cloud"></i> Upload
-            </label>
+            <div class="nav-item active" id="nav-home" onclick="navigateTo('home')">Home</div>
+            <div class="nav-item" id="nav-tracks" onclick="navigateTo('tracks')">Tracks</div>
+            <label for="upload-input" id="upload-label" class="nav-item hidden" style="color: var(--primary);">Upload</label>
             <input type="file" id="upload-input" class="hidden" accept="audio/*">
         </div>
-
         <div class="user-section">
-            <div id="sign-in-btn" class="nav-item" onclick="toggleModal(true)">
-                <i data-lucide="key"></i> Sign In
-            </div>
-            <div id="logout-btn" class="nav-item hidden" onclick="signOut()">
-                <i data-lucide="log-out"></i> Logout
-            </div>
+            <div id="sign-in-btn" class="nav-item" onclick="toggleModal(true)">Sign In</div>
+            <div id="logout-btn" class="nav-item hidden" onclick="signOut()">Logout</div>
         </div>
     </aside>
 
     <main>
         <div id="page-home" class="page active">
-            <div class="hero">
-                <h2>The Archive of <span>Sound.</span></h2>
-                <p>Decentralized audio broadcasting for creators who value frequency over followers.</p>
-            </div>
-
-            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--primary); letter-spacing: 2px;">// RECOMMENDED_FEED</div>
+            <h2 style="font-size: 3rem; margin-bottom: 2rem;">Discover <span>Sound</span></h2>
             
-            <div class="marquee-container">
-                <div class="marquee-inner" id="marquee">
-                    </div>
-            </div>
+            <div class="marquee-container"><div class="marquee-inner scroll-rtl" id="m-1"></div></div>
+            <div class="marquee-container"><div class="marquee-inner scroll-ltr" id="m-2"></div></div>
+            <div class="marquee-container"><div class="marquee-inner scroll-rtl" id="m-3"></div></div>
         </div>
 
         <div id="page-tracks" class="page">
-            <h2 style="font-size: 3rem; margin-bottom: 2rem; letter-spacing: -1px;">Database Archive</h2>
-            <input type="text" id="search-bar" class="search-bar" placeholder="SEARCH_BY_TRACK_TITLE..." oninput="filterTracks()">
+            <h2 style="margin-bottom: 1.5rem;">Archive</h2>
+            <input type="text" id="search-bar" class="search-bar" placeholder="SEARCH (WITH TYPO TOLERANCE)..." oninput="filterTracks()">
             <div class="track-grid" id="all-grid"></div>
         </div>
     </main>
 
     <div class="player-bar" id="player-container">
-        <div>
-            <p id="p-title" style="font-weight: bold; font-size: 0.95rem; color: white;">No track selected</p>
-            <p id="p-author" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--primary); margin-top: 2px;"></p>
-        </div>
+        <div><p id="p-title" style="font-weight: bold;">No track</p><p id="p-author" style="font-size: 0.7rem; color: var(--primary);"></p></div>
         <audio id="player" controls></audio>
-        <div class="close-player" onclick="closePlayer()">
-            <span>DISCONNECT</span>
-            <i data-lucide="x-circle" size="20"></i>
-        </div>
+        <div style="cursor: pointer; text-align: right;" onclick="closePlayer()">[ CLOSE ]</div>
     </div>
 
-    <div id="auth-modal">
+    <div id="auth-modal" onclick="closeModalOnBg(event)">
         <div class="modal-content">
-            <h2 style="font-family: var(--font-mono); margin-bottom: 1rem;">ACCESS_KEY</h2>
-            <input type="email" id="email" placeholder="EMAIL_ADDRESS">
-            <input type="password" id="pass" placeholder="PASSWORD">
-            <button class="btn-init" onclick="executeAuth()">INITIALIZE_SESSION</button>
-            <p onclick="toggleModal(false)" style="margin-top: 2rem; color: var(--text-muted); cursor: pointer; font-size: 0.8rem;">[ ABORT_CONNECTION ]</p>
+            <h2 style="margin-bottom: 1rem;">ACCESS_KEY</h2>
+            <input type="email" id="email" style="width:100%; padding:10px; margin:5px 0;" placeholder="EMAIL">
+            <input type="password" id="pass" style="width:100%; padding:10px; margin:5px 0;" placeholder="PASSWORD">
+            <button onclick="executeAuth()" style="width:100%; padding:15px; background:var(--primary); border:none; color:white; margin-top:1rem;">INIT</button>
         </div>
     </div>
 
@@ -322,82 +188,99 @@
         const SB_URL = 'https://kjohvagqtfcxbpwpldrs.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqb2h2YWdxdGZjeGJwd3BsZHJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyOTI0NjcsImV4cCI6MjA4Nzg2ODQ2N30.nJxUOL7ay9G4i9RpbeXbO1x4-wOmXYc8eWrwRuLcSXg'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
-
         let allTracks = [];
 
-        function navigateTo(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            document.getElementById(`nav-${pageId}`).classList.add('active');
+        function navigateTo(p) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`page-${p}`).classList.add('active');
+            document.getElementById(`nav-${p}`).classList.add('active');
+        }
+
+        // Fuzzy search logic (Levenshtein Distance)
+        function getLevenshtein(a, b) {
+            const matrix = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+            for (let j = 1; j <= b.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= a.length; i++) {
+                for (let j = 1; j <= b.length; j++) {
+                    const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+                    matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+                }
+            }
+            return matrix[a.length][b.length];
+        }
+
+        function filterTracks() {
+            const q = document.getElementById('search-bar').value.toLowerCase();
+            if (!q) return renderGrid(allTracks);
+            
+            // Exact match filter
+            let filtered = allTracks.filter(t => t.title.toLowerCase().includes(q));
+            
+            // Fuzzy match if no results
+            if (filtered.length === 0) {
+                filtered = allTracks.filter(t => {
+                    const words = t.title.toLowerCase().split(' ');
+                    return words.some(w => getLevenshtein(w, q) <= 2);
+                });
+            }
+            renderGrid(filtered);
         }
 
         async function fetchAll() {
             const { data } = await _supabase.from('audiotube_tracks').select('*').order('created_at', {ascending: false});
             allTracks = data || [];
             
-            const marquee = document.getElementById('marquee');
-            marquee.innerHTML = '';
-
-            if (allTracks.length > 0) {
-                // Determine how many times to repeat to fill screen width
-                // We repeat at least enough to make the marquee feel continuous
-                const repeatCount = Math.max(10, Math.ceil(window.innerWidth / 320) * 2);
-                let loopList = [];
-                for(let i = 0; i < repeatCount; i++) {
-                    loopList.push(allTracks[i % allTracks.length]);
-                }
-
-                loopList.forEach(t => {
-                    const div = document.createElement('div');
-                    div.className = 'marquee-card';
-                    div.innerHTML = `<i data-lucide="play-circle" color="#ff4500" size="24"></i> 
-                                     <div><p style="font-size:0.9rem; font-weight:bold">${t.title}</p>
-                                     <p style="font-size:0.7rem; color:#666; font-family:var(--font-mono)">@${t.author.split('@')[0]}</p></div>`;
-                    div.onclick = () => play(t);
-                    marquee.appendChild(div);
+            const fillMarquee = (id) => {
+                const el = document.getElementById(id);
+                el.innerHTML = '';
+                const loop = [...allTracks, ...allTracks, ...allTracks, ...allTracks];
+                loop.forEach(t => {
+                    const d = document.createElement('div');
+                    d.className = 'marquee-card';
+                    d.innerHTML = `<i data-lucide="play"></i> <div><b>${t.title}</b><br><small>@${t.author.split('@')[0]}</small></div>`;
+                    d.onclick = () => play(t);
+                    el.appendChild(d);
                 });
-            }
+            };
 
+            ['m-1', 'm-2', 'm-3'].forEach(fillMarquee);
             renderGrid(allTracks);
             lucide.createIcons();
         }
 
         function renderGrid(data) {
-            const grid = document.getElementById('all-grid');
-            grid.innerHTML = data.length ? '' : '<p>NO_RECORDS_FOUND</p>';
+            const g = document.getElementById('all-grid');
+            g.innerHTML = '';
             data.forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `<h3>${t.title}</h3><p>SOURCE: ${t.author.split('@')[0]}</p>`;
-                div.onclick = () => play(t);
-                grid.appendChild(div);
+                const d = document.createElement('div');
+                d.className = 'card';
+                d.innerHTML = `<h3>${t.title}</h3><p>@${t.author.split('@')[0]}</p>`;
+                d.onclick = () => play(t);
+                g.appendChild(d);
             });
-        }
-
-        function filterTracks() {
-            const q = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = allTracks.filter(t => t.title.toLowerCase().includes(q));
-            renderGrid(filtered);
         }
 
         function play(t) {
             const p = document.getElementById('player');
-            const container = document.getElementById('player-container');
             p.src = t.url;
             document.getElementById('p-title').innerText = t.title;
-            document.getElementById('p-author').innerText = `BROADCAST_BY: ${t.author.split('@')[0]}`;
-            container.classList.add('visible');
+            document.getElementById('p-author').innerText = t.author;
+            document.getElementById('player-container').classList.add('visible');
             p.play();
         }
 
-        function closePlayer() {
-            const p = document.getElementById('player');
-            document.getElementById('player-container').classList.remove('visible');
-            p.pause();
+        function toggleModal(s) { 
+            const m = document.getElementById('auth-modal');
+            s ? m.classList.add('visible') : m.classList.remove('visible');
         }
 
-        function toggleModal(s) { document.getElementById('auth-modal').style.display = s ? 'flex' : 'none'; }
+        function closeModalOnBg(e) { if(e.target.id === 'auth-modal') toggleModal(false); }
+
+        function closePlayer() { 
+            document.getElementById('player-container').classList.remove('visible');
+            document.getElementById('player').pause();
+        }
 
         async function updateUI() {
             const { data: { user } } = await _supabase.auth.getUser();
@@ -408,33 +291,13 @@
 
         async function executeAuth() {
             const e = document.getElementById('email').value, p = document.getElementById('pass').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-            if (error) await _supabase.auth.signUp({ email: e, password: p });
+            await _supabase.auth.signInWithPassword({ email: e, password: p });
             toggleModal(false); updateUI();
         }
 
         async function signOut() { await _supabase.auth.signOut(); updateUI(); }
 
-        document.getElementById('upload-input').addEventListener('change', async (e) => {
-            const f = e.target.files[0]; if(!f) return;
-            const { data: { user } } = await _supabase.auth.getUser();
-            // Critical fix for file names to prevent RLS/Storage issues
-            const cleanName = f.name.replace(/[^a-zA-Z0-9.]/g, '-');
-            const path = `${Date.now()}-${cleanName}`;
-            
-            const { error: upErr } = await _supabase.storage.from('songs').upload(path, f);
-            if(upErr) return alert("Storage Error: " + upErr.message);
-
-            const { data: { publicUrl } } = _supabase.storage.from('songs').getPublicUrl(path);
-            await _supabase.from('audiotube_tracks').insert([{ 
-                title: f.name.replace(/\.[^/.]+$/, ""), 
-                url: publicUrl, 
-                author: user.email 
-            }]);
-            fetchAll();
-        });
-
-        window.onload = () => { updateUI(); fetchAll(); lucide.createIcons(); };
+        window.onload = () => { updateUI(); fetchAll(); };
     </script>
 </body>
 </html>
